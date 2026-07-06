@@ -1,0 +1,895 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="theme-color" content="#0a0a0a">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<title>Guia do HT — 4ª Bda C Mec</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Barlow:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+/* ══════════════════════════════════════
+   RESET & BASE
+══════════════════════════════════════ */
+:root{
+  --bg:#0a0a0a; --surface:#141414; --surface2:#1c1c1c; --surface3:#252525;
+  --accent:#e50914; --gold:#f5a623;
+  --text:#e8e8e8; --muted:#888; --border:rgba(255,255,255,0.07);
+  --r-sm:6px; --r-md:12px; --r-lg:16px;
+  --max:1280px;
+  --safe-top:env(safe-area-inset-top,0px);
+  --safe-bot:env(safe-area-inset-bottom,0px);
+}
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
+html{scroll-behavior:smooth;}
+body{background:var(--bg);color:var(--text);font-family:'Barlow',sans-serif;font-size:16px;line-height:1.5;overflow-x:hidden;-webkit-font-smoothing:antialiased;}
+button{cursor:pointer;font-family:inherit;border:none;background:none;}
+
+/* ══════════════════════════════════════
+   LOADER
+══════════════════════════════════════ */
+#loader{position:fixed;inset:0;z-index:900;background:var(--bg);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:20px;transition:opacity .6s,visibility .6s;}
+#loader.gone{opacity:0;visibility:hidden;pointer-events:none;}
+.ld-logo{font-family:'Bebas Neue',sans-serif;font-size:2rem;letter-spacing:4px;color:var(--accent);text-align:center;line-height:1.2;}
+.ld-track{width:160px;height:2px;background:var(--surface3);border-radius:2px;overflow:hidden;}
+.ld-bar{height:100%;background:var(--accent);animation:ldbar 1.8s ease forwards;}
+@keyframes ldbar{0%{width:0}60%{width:65%}100%{width:100%}}
+.ld-txt{font-size:.7rem;color:var(--muted);letter-spacing:2px;text-transform:uppercase;}
+
+/* ══════════════════════════════════════
+   TOPBAR
+══════════════════════════════════════ */
+#topbar{
+  position:fixed;top:0;left:0;right:0;z-index:200;
+  padding:calc(var(--safe-top) + 8px) 20px 8px;
+  display:flex;align-items:center;gap:12px;
+  background:linear-gradient(to bottom,rgba(10,10,10,.97) 60%,transparent);
+  transition:background .3s;
+}
+#topbar.solid{background:rgba(10,10,10,.98);}
+.tb-inner{max-width:var(--max);width:100%;margin:0 auto;display:flex;align-items:center;gap:12px;}
+
+/* Hamburguer (mobile) */
+.tb-ham{width:40px;height:40px;display:flex;flex-direction:column;justify-content:center;gap:5px;padding:8px;border-radius:var(--r-sm);background:var(--surface2);border:1px solid var(--border);flex-shrink:0;}
+.tb-ham span{display:block;height:2px;background:var(--text);border-radius:2px;transition:all .25s;}
+.tb-ham.open span:nth-child(1){transform:translateY(7px) rotate(45deg);}
+.tb-ham.open span:nth-child(2){opacity:0;}
+.tb-ham.open span:nth-child(3){transform:translateY(-7px) rotate(-45deg);}
+
+.tb-logo{font-family:'Bebas Neue',sans-serif;font-size:1.8rem;letter-spacing:3px;color:var(--accent);line-height:1;flex:1;}
+.tb-right{display:flex;align-items:center;gap:10px;margin-left:auto;}
+.tb-search-btn{background:var(--surface2);border:1px solid var(--border);color:var(--muted);border-radius:var(--r-sm);width:57px;height:57px;display:flex;align-items:center;justify-content:center;font-size:1.5rem;}
+.tb-distintivo{width:54px;height:54px;object-fit:contain;flex-shrink:0;}
+
+/* Menu mobile (gaveta lateral) */
+#mobile-menu{
+  position:fixed;top:0;left:0;bottom:0;z-index:300;
+  width:260px;
+  background:var(--surface);
+  border-right:1px solid var(--border);
+  transform:translateX(-100%);
+  transition:transform .3s cubic-bezier(.2,.8,.4,1);
+  padding:calc(var(--safe-top) + 70px) 0 20px;
+  display:flex;flex-direction:column;gap:2px;
+  overflow-y:auto;
+}
+#mobile-menu.open{transform:translateX(0);}
+#menu-overlay{position:fixed;inset:0;z-index:250;background:rgba(0,0,0,.6);display:none;}
+#menu-overlay.open{display:block;}
+.mm-cat{display:flex;align-items:center;gap:12px;padding:13px 20px;font-size:.88rem;font-weight:500;color:var(--muted);cursor:pointer;border-radius:0;transition:background .15s;}
+.mm-cat:hover,.mm-cat.active{background:rgba(229,9,20,.1);color:#fff;}
+.mm-cat.active{color:var(--accent);}
+.mm-icon{font-size:1.1rem;width:22px;text-align:center;}
+.mm-divider{height:1px;background:var(--border);margin:8px 0;}
+
+/* ══════════════════════════════════════
+   SEARCH OVERLAY
+══════════════════════════════════════ */
+#search-overlay{position:fixed;inset:0;z-index:350;background:rgba(0,0,0,.95);display:none;flex-direction:column;padding:calc(var(--safe-top)+14px) 20px 20px;gap:12px;}
+#search-overlay.open{display:flex;}
+.so-row{display:flex;gap:10px;align-items:center;max-width:640px;width:100%;margin:0 auto;}
+#search-input{flex:1;background:var(--surface2);border:1px solid var(--border);color:var(--text);border-radius:var(--r-sm);padding:0 14px;height:46px;font-size:1rem;font-family:'Barlow',sans-serif;outline:none;}
+#search-input::placeholder{color:var(--muted);}
+#search-cancel{background:none;border:none;color:var(--muted);font-size:.85rem;letter-spacing:.5px;text-transform:uppercase;padding:0 4px;white-space:nowrap;}
+#search-results{flex:1;overflow-y:auto;display:flex;flex-direction:column;gap:8px;max-width:640px;width:100%;margin:0 auto;}
+.sr-item{background:var(--surface2);border:1px solid var(--border);border-radius:var(--r-md);padding:10px 14px;display:flex;gap:12px;align-items:center;cursor:pointer;}
+.sr-thumb{width:44px;height:44px;border-radius:var(--r-sm);background:var(--surface3);display:flex;align-items:center;justify-content:center;font-size:1.3rem;flex-shrink:0;overflow:hidden;}
+.sr-thumb img{width:100%;height:100%;object-fit:cover;}
+.sr-name{font-size:.9rem;font-weight:600;color:var(--text);}
+.sr-sub{font-size:.75rem;color:var(--muted);margin-top:2px;}
+.sr-empty{color:var(--muted);font-size:.85rem;text-align:center;padding:40px 0;}
+
+/* ══════════════════════════════════════
+   HERO
+══════════════════════════════════════ */
+#hero{position:relative;min-height:68vh;display:flex;flex-direction:column;justify-content:flex-end;padding:100px 20px 32px;overflow:hidden;}
+#hero-bg{position:absolute;inset:0;z-index:0;background:linear-gradient(160deg,#1a060a 0%,#0c152a 55%,#070d1a 100%);}
+#hero-bg-img{
+  position:absolute;inset:0;z-index:0;
+  background-image:url('fotos/brigada.jpg');
+  background-size:cover;background-position:center center;
+  filter:blur(1px) brightness(.8) saturate(.90);
+  transform:scale(1.05);
+  opacity:1;
+}
+#hero-particles{position:absolute;inset:0;z-index:1;overflow:hidden;pointer-events:none;}
+.pt{position:absolute;border-radius:50%;opacity:0;animation:ptup linear infinite;}
+@keyframes ptup{0%{transform:translateY(100%) scale(.3);opacity:0}15%{opacity:.15}85%{opacity:.08}100%{transform:translateY(-30%) scale(1.1);opacity:0}}
+#hero-grad{position:absolute;inset:0;z-index:2;background:linear-gradient(to top,var(--bg) 0%,rgba(10,10,10,.4) 55%,transparent 100%);}
+#hero-content{position:relative;z-index:3;max-width:var(--max);width:100%;margin:0 auto;}
+.hc-tag{display:inline-block;background:var(--accent);color:#fff;font-size:.65rem;font-weight:700;letter-spacing:2px;text-transform:uppercase;padding:3px 10px;border-radius:3px;margin-bottom:12px;}
+#hero-city{font-family:'Bebas Neue',sans-serif;font-size:clamp(2.6rem,10vw,5.5rem);line-height:.95;letter-spacing:3px;color:#fff;margin-bottom:10px;}
+.hc-desc{font-size:.9rem;color:rgba(232,232,232,.6);font-weight:300;line-height:1.6;max-width:420px;}
+
+/* ══════════════════════════════════════
+   CAT BAR (desktop — tabs horizontais)
+══════════════════════════════════════ */
+#cat-bar{position:sticky;top:calc(var(--safe-top)+60px);z-index:100;background:var(--bg);border-bottom:1px solid var(--border);}
+#cat-scroll{display:flex;gap:6px;overflow-x:auto;padding:10px 20px;scrollbar-width:none;max-width:var(--max);margin:0 auto;}
+#cat-scroll::-webkit-scrollbar{display:none;}
+.cat-pill{flex-shrink:0;background:var(--surface2);border:1px solid var(--border);color:var(--muted);font-family:'Barlow',sans-serif;font-size:.75rem;font-weight:600;letter-spacing:.5px;text-transform:uppercase;padding:7px 14px;border-radius:20px;white-space:nowrap;transition:all .2s;min-height:36px;display:flex;align-items:center;gap:5px;cursor:pointer;}
+.cat-pill.active{background:var(--accent);border-color:var(--accent);color:#fff;}
+
+/* ══════════════════════════════════════
+   MAIN / PAGE WRAPPER
+══════════════════════════════════════ */
+main{padding-bottom:calc(var(--safe-bot)+40px);}
+.page-inner{max-width:var(--max);margin:0 auto;}
+
+/* ══════════════════════════════════════
+   SECTION
+══════════════════════════════════════ */
+.section{margin-bottom:40px;}
+.sec-header{display:flex;align-items:center;padding:0 20px;margin-bottom:14px;}
+.sec-title{font-family:'Bebas Neue',sans-serif;font-size:1.3rem;letter-spacing:2px;color:#fff;display:flex;align-items:center;gap:8px;}
+.sec-count{font-size:.65rem;color:var(--accent);background:rgba(229,9,20,.12);border:1px solid rgba(229,9,20,.22);padding:2px 7px;border-radius:20px;font-family:'Barlow',sans-serif;font-weight:700;}
+
+/* ══════════════════════════════════════
+   CARROSSEL — com botões laterais
+══════════════════════════════════════ */
+.carousel-wrap{position:relative;}
+.carousel-arrow{
+  position:absolute;top:50%;transform:translateY(-50%);
+  z-index:20;
+  width:40px;height:70px;
+  background:rgba(10,10,10,.85);
+  border:1px solid rgba(255,255,255,.15);
+  color:#fff;font-size:1.3rem;
+  display:flex;align-items:center;justify-content:center;
+  cursor:pointer;
+  transition:background .2s,opacity .2s;
+  opacity:0;
+  border-radius:0 var(--r-sm) var(--r-sm) 0;
+}
+.carousel-arrow.arr-right{border-radius:var(--r-sm) 0 0 var(--r-sm);}
+.carousel-wrap:hover .carousel-arrow{opacity:1;}
+.carousel-arrow:hover{background:rgba(229,9,20,.85);}
+.arr-left{left:0;}
+.arr-right{right:0;}
+.carousel{
+  display:flex;gap:8px;
+  overflow-x:auto;scroll-snap-type:x mandatory;
+  -webkit-overflow-scrolling:touch;
+  padding:4px 20px 16px;
+  scrollbar-width:none;
+  scroll-behavior:smooth;
+}
+.carousel::-webkit-scrollbar{display:none;}
+
+/* ══════════════════════════════════════
+   CARD Netflix — poster 2:3
+══════════════════════════════════════ */
+.card{
+  flex:0 0 clamp(140px,38vw,175px);
+  scroll-snap-align:start;
+  border-radius:var(--r-sm);overflow:hidden;position:relative;
+  cursor:pointer;
+  background:var(--surface3);
+  transition:transform .22s ease,box-shadow .22s ease;
+}
+.card:hover{transform:scale(1.09) translateY(-5px);box-shadow:0 20px 50px rgba(0,0,0,.85);z-index:10;}
+.card:active{transform:scale(.97);}
+
+.card-thumb{width:100%;aspect-ratio:2/3;display:flex;align-items:center;justify-content:center;font-size:3rem;background:var(--surface3);overflow:hidden;position:relative;}
+/* slides */
+.card-slides{position:absolute;inset:0;z-index:0;}
+.card-slide{position:absolute;inset:0;opacity:0;transition:opacity .6s ease;}
+.card-slide.active{opacity:1;}
+.card-slide img{width:100%;height:100%;object-fit:cover;display:block;}
+.card-thumb-emoji{position:relative;z-index:1;pointer-events:none;}
+/* dots */
+.card-dots{position:absolute;top:6px;right:6px;display:flex;gap:3px;z-index:5;pointer-events:none;}
+.card-dot{width:5px;height:5px;border-radius:50%;background:rgba(255,255,255,.35);border:1px solid rgba(0,0,0,.25);transition:background .3s;}
+.card-dot.active{background:#fff;}
+/* overlay */
+.card-overlay{
+  position:absolute;inset:0;
+  background:linear-gradient(to top,rgba(0,0,0,.94) 0%,rgba(0,0,0,.2) 50%,transparent 75%);
+  display:flex;flex-direction:column;justify-content:flex-end;
+  padding:10px 9px 9px;
+  z-index:3;
+  pointer-events:none;
+}
+.card-overlay > *{pointer-events:auto;}
+.card-badge{position:absolute;top:7px;left:7px;background:var(--accent);color:#fff;font-size:.55rem;font-weight:700;letter-spacing:1px;text-transform:uppercase;padding:2px 6px;border-radius:2px;z-index:4;}
+.card-name{font-size:.78rem;font-weight:600;color:#fff;line-height:1.2;margin-bottom:2px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;}
+.card-sub{font-size:.62rem;color:rgba(255,255,255,.5);margin-bottom:4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.card-tags{display:flex;flex-wrap:wrap;gap:2px;margin-bottom:5px;}
+.tag{font-size:.55rem;font-weight:700;letter-spacing:.3px;padding:1px 5px;border-radius:2px;text-transform:uppercase;border:1px solid;}
+.tg{color:#4ade80;border-color:rgba(74,222,128,.35);background:rgba(74,222,128,.1);}
+.tb{color:#60a5fa;border-color:rgba(96,165,250,.35);background:rgba(96,165,250,.1);}
+.ta{color:#fbbf24;border-color:rgba(251,191,36,.35);background:rgba(251,191,36,.1);}
+.tr{color:#f87171;border-color:rgba(248,113,113,.35);background:rgba(248,113,113,.1);}
+.tp{color:#c084fc;border-color:rgba(192,132,252,.35);background:rgba(192,132,252,.1);}
+.tt{color:#2dd4bf;border-color:rgba(45,212,191,.35);background:rgba(45,212,191,.1);}
+.card-map-btn{
+  display:flex;align-items:center;justify-content:center;gap:4px;
+  width:100%;
+  padding:5px 0;
+  background:rgba(229,9,20,.75);
+  border:1px solid rgba(229,9,20,.9);
+  color:#fff;font-size:.62rem;font-weight:700;
+  letter-spacing:.8px;text-transform:uppercase;
+  border-radius:4px;text-decoration:none;cursor:pointer;
+  transition:background .15s;
+}
+.card-map-btn:active,.card-map-btn:hover{background:var(--accent);}
+
+/* CARD WIDE */
+.card-wide{flex:0 0 clamp(260px,72vw,360px);}
+.card-wide .card-thumb{aspect-ratio:16/9;}
+.card-wide .card-name{font-size:.9rem;}
+.card-wide .card-overlay{padding:14px 12px;}
+
+/* ══════════════════════════════════════
+   MODAL — fullscreen carrossel de fotos + detalhes
+══════════════════════════════════════ */
+#modal-overlay{position:fixed;inset:0;z-index:400;background:rgba(0,0,0,.85);display:none;align-items:flex-end;-webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px);}
+#modal-overlay.open{display:flex;}
+#modal-sheet{
+  width:100%;max-height:94vh;
+  background:var(--surface);
+  border-radius:var(--r-lg) var(--r-lg) 0 0;
+  border-top:1px solid var(--border);
+  overflow-y:auto;-webkit-overflow-scrolling:touch;
+  animation:slideup .32s cubic-bezier(.2,.8,.4,1);
+  padding-bottom:var(--safe-bot);
+  position:relative;
+}
+@keyframes slideup{from{transform:translateY(100%)}to{transform:translateY(0)}}
+
+/* Botão X */
+#modal-close{
+  position:absolute;top:12px;right:12px;z-index:20;
+  width:38px;height:38px;border-radius:50%;
+  background:rgba(0,0,0,.55);border:1.5px solid rgba(255,255,255,.25);
+  color:#fff;font-size:1.1rem;font-weight:700;
+  display:flex;align-items:center;justify-content:center;
+  cursor:pointer;transition:background .2s;
+}
+#modal-close:hover{background:var(--accent);}
+
+/* ── Carrossel de fotos no modal ── */
+#ms-photo-area{position:relative;background:var(--surface3);overflow:hidden;touch-action:pan-y;}
+#ms-photo-track{display:flex;transition:transform .35s cubic-bezier(.25,.8,.25,1);}
+.ms-photo-slide{flex:0 0 100%;position:relative;}
+.ms-photo-slide img{width:100%;height:260px;object-fit:cover;display:block;}
+.ms-photo-emoji{width:100%;height:200px;display:flex;align-items:center;justify-content:center;font-size:5rem;}
+.ms-photo-overlay{position:absolute;inset:0;background:linear-gradient(to top,rgba(20,20,20,.7) 0%,transparent 50%);pointer-events:none;}
+/* Setas do carrossel modal */
+.ms-carr-arrow{
+  position:absolute;top:50%;transform:translateY(-50%);z-index:10;
+  width:38px;height:38px;border-radius:50%;
+  background:rgba(0,0,0,.55);border:1.5px solid rgba(255,255,255,.2);
+  color:#fff;font-size:1.1rem;
+  display:flex;align-items:center;justify-content:center;
+  cursor:pointer;transition:background .2s;
+}
+.ms-carr-arrow:hover{background:var(--accent);}
+#ms-arr-l{left:10px;}
+#ms-arr-r{right:10px;}
+/* Contador de fotos */
+#ms-photo-counter{
+  position:absolute;bottom:10px;right:12px;z-index:10;
+  background:rgba(0,0,0,.55);
+  color:rgba(255,255,255,.85);
+  font-size:.7rem;font-weight:600;
+  padding:3px 9px;border-radius:20px;
+  letter-spacing:.5px;
+}
+/* Dots do carrossel modal */
+#ms-photo-dots{position:absolute;bottom:10px;left:50%;transform:translateX(-50%);display:flex;gap:5px;z-index:10;}
+.ms-pdot{width:6px;height:6px;border-radius:50%;background:rgba(255,255,255,.35);border:1px solid rgba(0,0,0,.2);cursor:pointer;transition:background .2s;}
+.ms-pdot.active{background:#fff;}
+
+/* Corpo do modal */
+.ms-body{padding:16px 20px 24px;}
+.ms-title{font-family:'Bebas Neue',sans-serif;font-size:1.75rem;letter-spacing:2px;color:#fff;margin-bottom:2px;}
+.ms-cat{font-size:.72rem;color:var(--muted);text-transform:uppercase;letter-spacing:1px;margin-bottom:10px;}
+.ms-desc{font-size:.88rem;color:rgba(232,232,232,.78);line-height:1.6;margin-bottom:14px;}
+.ms-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:16px;}
+.ms-detail{background:var(--surface2);border:1px solid var(--border);border-radius:var(--r-sm);padding:10px 12px;}
+.ms-dl{font-size:.62rem;color:var(--muted);text-transform:uppercase;letter-spacing:1px;margin-bottom:3px;}
+.ms-dv{font-size:.84rem;color:var(--text);font-weight:500;line-height:1.3;word-break:break-word;}
+.ms-actions{display:grid;grid-template-columns:1fr 1fr;gap:8px;}
+.ms-btn{display:flex;align-items:center;justify-content:center;gap:7px;width:100%;padding:13px;border-radius:var(--r-sm);border:none;font-family:'Barlow',sans-serif;font-size:.88rem;font-weight:600;letter-spacing:.5px;text-decoration:none;min-height:48px;cursor:pointer;}
+.ms-btn-primary{background:var(--accent);color:#fff;}
+.ms-btn-secondary{background:var(--surface2);border:1px solid var(--border);color:var(--text);}
+.ms-btn-whats{background:#25D366;color:#fff;display:flex;align-items:center;gap:7px;}
+
+/* ══════════════════════════════════════
+   SELETOR DE APP DE MAPA
+══════════════════════════════════════ */
+#map-picker-overlay{position:fixed;inset:0;z-index:600;background:rgba(0,0,0,.75);display:none;align-items:flex-end;}
+#map-picker-overlay.open{display:flex;}
+#map-picker-sheet{width:100%;background:var(--surface);border-radius:var(--r-lg) var(--r-lg) 0 0;border-top:1px solid var(--border);padding:0 0 var(--safe-bot);animation:slideup .25s cubic-bezier(.2,.8,.4,1);}
+.mp-handle{width:36px;height:4px;border-radius:2px;background:var(--surface3);margin:12px auto 8px;}
+.mp-title{font-size:.72rem;color:var(--muted);text-transform:uppercase;letter-spacing:1px;text-align:center;padding-bottom:10px;}
+.mp-list{display:flex;flex-direction:column;gap:2px;padding:0 12px 6px;}
+.mp-app{display:flex;align-items:center;gap:14px;padding:12px 14px;border-radius:var(--r-md);background:var(--surface2);border:1px solid var(--border);text-decoration:none;color:var(--text);font-size:.9rem;font-weight:500;}
+.mp-app:active{background:var(--surface3);}
+.mp-app-icon{font-size:1.4rem;width:26px;text-align:center;flex-shrink:0;}
+.mp-app-sub{font-size:.7rem;color:var(--muted);margin-top:1px;}
+.mp-cancel{margin:4px 12px 12px;display:flex;align-items:center;justify-content:center;padding:12px;border-radius:var(--r-md);background:var(--surface3);border:none;color:var(--muted);font-size:.88rem;font-weight:500;width:calc(100% - 24px);cursor:pointer;}
+
+/* ══════════════════════════════════════
+   TOAST / EMPTY
+══════════════════════════════════════ */
+#toast{position:fixed;bottom:calc(var(--safe-bot)+20px);left:50%;transform:translateX(-50%) translateY(12px);z-index:700;background:var(--surface2);border:1px solid var(--border);border-left:3px solid var(--accent);border-radius:var(--r-sm);padding:10px 16px;font-size:.78rem;color:var(--text);white-space:nowrap;pointer-events:none;opacity:0;transition:all .3s;}
+#toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
+#info-bar{background:rgba(229,9,20,.07);border-bottom:1px solid rgba(229,9,20,.15);padding:7px 20px;font-size:.7rem;color:rgba(229,9,20,.75);text-align:center;}
+.empty-sec{margin:60px 20px;text-align:center;color:var(--muted);}
+
+/* ══════════════════════════════════════
+   DESKTOP
+══════════════════════════════════════ */
+@media(min-width:768px){
+  .tb-ham{display:none;}
+  #mobile-menu{display:none !important;}
+  #hero{padding:130px 40px 48px;}
+  .sec-header,#cat-scroll,.carousel,.ht-grid{padding-left:40px;padding-right:40px;}
+  .card{flex-basis:175px;}
+  .card-wide{flex-basis:380px;}
+  .carousel{gap:10px;}
+  #modal-overlay{align-items:center;}
+  #modal-sheet{width:100%;max-width:560px;border-radius:var(--r-lg);margin:0 auto;max-height:90vh;}
+  .ms-photo-slide img{height:300px;}
+  .ms-actions{flex-direction:row;}
+  #map-picker-overlay{align-items:center;}
+  #map-picker-sheet{width:100%;max-width:420px;border-radius:var(--r-lg);margin:0 auto;}
+  #cat-bar{top:calc(var(--safe-top)+64px);}
+  .ht-grid{grid-template-columns:repeat(2,1fr);}
+  .carousel-arrow{display:flex;}
+}
+@media(min-width:1024px){
+  .card{flex-basis:190px;}
+  .card-wide{flex-basis:420px;}
+  .ht-grid{grid-template-columns:repeat(2,1fr);max-width:600px;}
+}
+@media(max-width:767px){
+  .carousel-arrow{display:none;}
+}
+</style>
+</head>
+<body>
+
+<!-- LOADER -->
+<div id="loader">
+  <div class="ld-logo">4ª Bda C Mec<br><span style="font-size:1rem;letter-spacing:5px;color:rgba(229,9,20,.65)">DOURADOS · MS</span></div>
+  <div class="ld-track"><div class="ld-bar"></div></div>
+  <div class="ld-txt">Carregando informações...</div>
+</div>
+
+<!-- MENU OVERLAY -->
+<div id="menu-overlay" onclick="closeMenu()"></div>
+
+<!-- MENU MOBILE (gaveta) -->
+<div id="mobile-menu" id="mmenu">
+  <div class="mm-cat active" onclick="setCat('Todos');closeMenu()"><span class="mm-icon">✦</span>Todos</div>
+  <div class="mm-divider"></div>
+  <div id="mm-cats"></div>
+</div>
+
+<!-- TOPBAR -->
+<div id="topbar">
+  <div class="tb-inner">
+    <button class="tb-ham" id="ham-btn" onclick="toggleMenu()" aria-label="Menu">
+      <span></span><span></span><span></span>
+    </button>
+    <div class="tb-logo">4ª Bda C Mec</div>
+    <div class="tb-right">
+      <button class="tb-search-btn" onclick="openSearch()" aria-label="Buscar">⌕</button>
+      <img class="tb-distintivo" src="fotos/4bdacmec.png" alt="Distintivo 4ª Bda C Mec" onerror="this.style.display='none'">
+    </div>
+  </div>
+</div>
+
+<!-- SEARCH OVERLAY -->
+<div id="search-overlay">
+  <div class="so-row">
+    <input type="search" id="search-input" placeholder="Buscar restaurante, hospital..." autocomplete="off">
+    <button id="search-cancel" onclick="closeSearch()">Cancelar</button>
+  </div>
+  <div id="search-results"></div>
+</div>
+
+<div id="info-bar">⟳ Atualizado via Google Sheets — edite a planilha para atualizar o guia</div>
+
+<!-- HERO -->
+<div id="hero">
+  <div id="hero-bg"></div>
+  <div id="hero-bg-img"></div>
+  <div id="hero-particles"></div>
+  <div id="hero-grad"></div>
+  <div id="hero-content">
+    <div class="hc-tag">Guia do HT — 4ª Bda C Mec</div>
+    <h1 id="hero-city">DOURADOS — MS</h1>
+    <p class="hc-desc">Restaurantes, turismo, saúde e serviços — tudo em um único lugar.</p>
+  </div>
+</div>
+
+<!-- CAT BAR -->
+<div id="cat-bar"><div id="cat-scroll"></div></div>
+
+<!-- MAIN -->
+<main id="main"></main>
+
+<!-- MODAL -->
+<div id="modal-overlay" onclick="overlayClick(event)">
+  <div id="modal-sheet">
+    <button id="modal-close" onclick="closeModal()" aria-label="Fechar">✕</button>
+    <!-- Carrossel de fotos -->
+    <div id="ms-photo-area">
+      <div id="ms-photo-track"></div>
+      <button class="ms-carr-arrow" id="ms-arr-l" onclick="msCarrMove(-1)">‹</button>
+      <button class="ms-carr-arrow" id="ms-arr-r" onclick="msCarrMove(1)">›</button>
+      <div id="ms-photo-counter"></div>
+      <div id="ms-photo-dots"></div>
+    </div>
+    <div class="ms-body">
+      <div class="ms-title" id="ms-title"></div>
+      <div class="ms-cat"   id="ms-cat"></div>
+      <div class="ms-desc"  id="ms-desc"></div>
+      <div class="ms-grid"  id="ms-grid"></div>
+      <div class="ms-actions" id="ms-actions"></div>
+    </div>
+  </div>
+</div>
+
+<!-- SELETOR DE APP -->
+<div id="map-picker-overlay" onclick="closeMapPicker(event)">
+  <div id="map-picker-sheet">
+    <div class="mp-handle"></div>
+    <div class="mp-title">Abrir localização em</div>
+    <div class="mp-list" id="mp-list"></div>
+    <button class="mp-cancel" onclick="closeMapPicker()">Cancelar</button>
+  </div>
+</div>
+
+<div id="toast"></div>
+
+<script>
+/* ════════════════════════════════════════════
+   CONFIG
+════════════════════════════════════════════ */
+const CFG={
+  sheetUrl:"https://docs.google.com/spreadsheets/d/e/2PACX-1vTaXGF4Xc2qoXr2V8QFcpo2WB-zU-JfkVz7ddOFa6XVCxNmcsBhjZqRAqjAiZcxXHd0wYT-zwdtB3iL/pub?gid=0&single=true&output=csv", // URL CSV da planilha
+  cols:{
+    nome:"Nome",categoria:"Categoria",sub:"Subcategoria",
+    desc:"Descricao",end:"Endereco",tel:"Telefone",whats:"Whatsapp",
+    hora:"Horario",site:"Site",social:"RedesSociais",
+    dest:"Destaque",emoji:"Emoji",tags:"Tags",
+    map:"MapLink",fotos:"Fotos"
+  }
+};
+
+/* ════════════════════════════════════════════
+   DADOS DEMO
+════════════════════════════════════════════ */
+const DEMO=[
+  {Nome:"Sabor do Cerrado",    Categoria:"Restaurantes",Subcategoria:"Regional",    Fotos:"https://images.unsplash.com/photo-1504674900247-0877df9cc836?w=500&q=80|https://images.unsplash.com/photo-1414235077428-338989a2e8c0?w=500&q=80",Descricao:"Especialidades do MS com ambiente rústico.",        Endereco:"Rua das Palmeiras, 420",     Telefone:"(67) 3321-0001",Horario:"Seg–Sáb 11h–23h",  Site:"",RedesSociais:"",Destaque:"sim",Emoji:"🍽️",Tags:"Regional,Almoço",  MapLink:"https://www.google.com/maps?q=-22.2197,-54.8050"},
+  {Nome:"Pizzaria Dom Bosco",  Categoria:"Restaurantes",Subcategoria:"Pizza",       Fotos:"https://images.unsplash.com/photo-1565299624946-b28f40a0ae38?w=500&q=80|https://images.unsplash.com/photo-1571407970349-bc81e7e96d47?w=500&q=80",Descricao:"Pizzas artesanais com massa de fermentação lenta.", Endereco:"Av. Marcelino Pires, 1800",  Telefone:"(67) 3321-0002",Horario:"Ter–Dom 18h–23h30",Site:"https://pizzariadombosco.com.br",RedesSociais:"https://instagram.com/pizzariadombosco",Destaque:"sim",Emoji:"🍕",Tags:"Pizza,Delivery",MapLink:"https://www.google.com/maps?q=-22.2213,-54.8121"},
+  {Nome:"Sushi Pantanal",      Categoria:"Restaurantes",Subcategoria:"Japonesa",    Fotos:"https://images.unsplash.com/photo-1579871494447-9811cf80d66c?w=500&q=80",                                                                          Descricao:"Fusão oriental com ingredientes do Pantanal.",   Endereco:"R. João Rosa Góes, 670",     Telefone:"(67) 3321-0003",Horario:"Qua–Dom 12h–22h",  Site:"",RedesSociais:"",Destaque:"não",Emoji:"🍱",Tags:"Japonesa,Sushi",MapLink:""},
+  {Nome:"Churrascaria Gaúcha", Categoria:"Restaurantes",Subcategoria:"Churrascaria",Fotos:"https://images.unsplash.com/photo-1544025162-d76694265947?w=500&q=80",                                                                          Descricao:"Cortes nobres e buffet na tradição gaúcha.",    Endereco:"Av. Weimar Torres, 300",     Telefone:"(67) 3321-0004",Horario:"Diário 11h30–23h", Site:"",RedesSociais:"https://instagram.com/churrascariagaucha",Destaque:"sim",Emoji:"🥩",Tags:"Churrasco,Buffet",MapLink:"https://www.google.com/maps?q=-22.2240,-54.8090"},
+  {Nome:"Parque Natural Mun.", Categoria:"Turismo",     Subcategoria:"Parque",      Fotos:"https://images.unsplash.com/photo-1448375240586-882707db888b?w=500&q=80|https://images.unsplash.com/photo-1441974231531-c6227db76b6e?w=500&q=80",Descricao:"120 ha com trilhas ecológicas e lagos de pesca.", Endereco:"BR-163 km 5",                Telefone:"(67) 3322-1001",Horario:"Ter–Dom 7h–17h",   Site:"",RedesSociais:"",Destaque:"sim",Emoji:"🌿",Tags:"Natureza,Trilha",MapLink:"https://www.google.com/maps?q=-22.2050,-54.8200"},
+  {Nome:"Museu Histórico",     Categoria:"Turismo",     Subcategoria:"Museu",       Fotos:"https://images.unsplash.com/photo-1566127992631-137a642a90f4?w=500&q=80",                                                                          Descricao:"Mais de 3.000 peças sobre a história local.",   Endereco:"Praça Antônio João, s/n",    Telefone:"(67) 3322-1002",Horario:"Ter–Sáb 8h–17h",   Site:"",RedesSociais:"",Destaque:"sim",Emoji:"🏛️",Tags:"História,Cultura",MapLink:"https://www.google.com/maps?q=-22.2210,-54.8070"},
+  {Nome:"Hospital Evangélico", Categoria:"Saúde",       Subcategoria:"Hospital",    Fotos:"https://images.unsplash.com/photo-1586773860418-d37222d8fce3?w=500&q=80",                                                                          Descricao:"Hospital de referência com UTI 24h.",            Endereco:"R. Oliveira Marques, 1656",  Telefone:"(67) 3410-1100",Horario:"24 horas",           Site:"",RedesSociais:"",Destaque:"sim",Emoji:"🏥",Tags:"Hospital,UTI",MapLink:"https://www.google.com/maps?q=-22.2175,-54.8055"},
+  {Nome:"UPA Norte",           Categoria:"Saúde",       Subcategoria:"UPA",         Fotos:"https://images.unsplash.com/photo-1519494026892-80bbd2d6fd0d?w=500&q=80",                                                                          Descricao:"Pronto Atendimento 24h.",                        Endereco:"Av. Ranulpho M. Leal, 4000", Telefone:"(67) 3431-5000",Horario:"24 horas",           Site:"",RedesSociais:"",Destaque:"sim",Emoji:"🚑",Tags:"Urgência,SUS",  MapLink:"https://www.google.com/maps?q=-22.2060,-54.8150"},
+  {Nome:"Corpo de Bombeiros",  Categoria:"Serviços",    Subcategoria:"Emergência",  Fotos:"https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=500&q=80",                                                                          Descricao:"5º GB – bombeiros militares 24h.",               Endereco:"Av. Presidente Vargas, 1200",Telefone:"193",           Horario:"24 horas",           Site:"",RedesSociais:"",Destaque:"sim",Emoji:"🚒",Tags:"Emergência",    MapLink:"https://www.google.com/maps?q=-22.2190,-54.8110"},
+  {Nome:"Prefeitura Municipal", Categoria:"Serviços",   Subcategoria:"Governo",     Fotos:"https://images.unsplash.com/photo-1523292562811-8fa7962a78c8?w=500&q=80",                                                                          Descricao:"Atendimento ao cidadão e serviços municipais.",  Endereco:"Praça B. Rio Branco s/n",    Telefone:"(67) 3410-5000",Horario:"Seg–Sex 7h–17h",   Site:"https://dourados.ms.gov.br",RedesSociais:"",Destaque:"sim",Emoji:"🏢",Tags:"Governo",MapLink:"https://www.google.com/maps?q=-22.2205,-54.8065"},
+];
+
+/* ════════════════════════════════════════════
+   META
+════════════════════════════════════════════ */
+const CAT_META={"Restaurantes":{icon:"🍽️",cls:"ta"},"Turismo":{icon:"🗺️",cls:"tg"},"Saúde":{icon:"⚕️",cls:"tr"},"Serviços":{icon:"🏢",cls:"tb"},"Educação":{icon:"🎓",cls:"tp"},"Esporte":{icon:"⚽",cls:"tt"}};
+const catMeta=c=>CAT_META[c]||{icon:"📍",cls:"tb"};
+
+let DATA=[],activeCat="Todos";
+const col=(item,k)=>{
+  const target=(CFG.cols[k]||"").toLowerCase();
+  const key=Object.keys(item).find(k2=>k2.toLowerCase()===target);
+  return key?item[key]:"";
+};
+const isMob=()=>/Android|iPhone|iPad|iPod|IEMobile/i.test(navigator.userAgent)||('ontouchstart' in window&&window.innerWidth<768);
+function toast(msg){const t=document.getElementById("toast");t.textContent=msg;t.classList.add("show");setTimeout(()=>t.classList.remove("show"),2800);}
+function getFotos(item){return(col(item,"fotos")||"").split("|").map(u=>u.trim()).filter(Boolean);}
+
+/* CSV */
+function parseCSV(csv){
+  const lines=csv.trim().split(/\r?\n/);if(lines.length<2)return[];
+  const hdr=lines[0].split(",").map(h=>h.replace(/^"|"$/g,"").trim());
+  return lines.slice(1).map(line=>{
+    const v=[];let c="",q=false;
+    for(const ch of line){if(ch==='"'){q=!q;}else if(ch===','&&!q){v.push(c.trim());c="";}else{c+=ch;}}
+    v.push(c.trim());
+    const o={};hdr.forEach((h,i)=>{o[h]=(v[i]||"").replace(/^"|"$/g,"");});return o;
+  });
+}
+
+/* Dados */
+async function loadData(){
+  if(!CFG.sheetUrl){DATA=DEMO;return;}
+  try{
+    const r=await fetch(CFG.sheetUrl+"&t="+Date.now());
+    if(!r.ok)throw 0;
+    DATA=parseCSV(await r.text());
+    toast("✓ Planilha sincronizada");
+  }catch(e){DATA=DEMO;toast("⚠ Usando dados demo");}
+}
+
+/* ── Partículas hero ── */
+function buildParticles(){
+  const c=document.getElementById("hero-particles");
+  const cols=["#e50914","#f5a623","#60a5fa","#4ade80","#c084fc"];
+  for(let i=0;i<14;i++){
+    const p=document.createElement("div");p.className="pt";
+    const s=3+Math.random()*16;
+    p.style.cssText=`width:${s}px;height:${s}px;left:${Math.random()*100}%;background:${cols[i%cols.length]};animation-duration:${8+Math.random()*12}s;animation-delay:${-Math.random()*15}s;`;
+    c.appendChild(p);
+  }
+}
+
+/* ── Hero bg ── */
+function loadHeroBg(){
+  const el=document.getElementById("hero-bg-img");
+  const caminhos=["fotos/brigada.jpg","./fotos/brigada.jpg","/fotos/brigada.jpg"];
+  let idx=0;
+  function tentarProximo(){
+    if(idx>=caminhos.length)return; // nenhum caminho funcionou
+    const src=caminhos[idx++];
+    const test=new Image();
+    test.onload=()=>{
+      el.style.backgroundImage=`url('${src}')`;
+    };
+    test.onerror=tentarProximo;
+    test.src=src+"?v="+Date.now();
+  }
+  tentarProximo();
+}
+
+/* ── Menu mobile ── */
+function toggleMenu(){
+  const m=document.getElementById("mobile-menu");
+  const h=document.getElementById("ham-btn");
+  const o=document.getElementById("menu-overlay");
+  const open=m.classList.toggle("open");
+  h.classList.toggle("open",open);
+  o.classList.toggle("open",open);
+}
+function closeMenu(){
+  document.getElementById("mobile-menu").classList.remove("open");
+  document.getElementById("ham-btn").classList.remove("open");
+  document.getElementById("menu-overlay").classList.remove("open");
+}
+
+/* ── Cat bar & menu mobile ── */
+function setCat(cat){activeCat=cat;renderCatBar();renderMain();}
+function renderCatBar(){
+  const cats=["Todos",...new Set(DATA.map(d=>col(d,"categoria")).filter(Boolean))];
+  // Desktop pills
+  const bar=document.getElementById("cat-scroll");bar.innerHTML="";
+  cats.forEach(cat=>{
+    const btn=document.createElement("button");
+    btn.className="cat-pill"+(cat===activeCat?" active":"");
+    btn.innerHTML=`<span>${cat==="Todos"?"✦":catMeta(cat).icon}</span>${cat}`;
+    btn.onclick=()=>{setCat(cat);document.getElementById("main").scrollIntoView({behavior:"smooth"});};
+    bar.appendChild(btn);
+  });
+  // Mobile menu cats
+  const mm=document.getElementById("mm-cats");mm.innerHTML="";
+  cats.filter(c=>c!=="Todos").forEach(cat=>{
+    const d=document.createElement("div");
+    d.className="mm-cat"+(cat===activeCat?" active":"");
+    d.innerHTML=`<span class="mm-icon">${catMeta(cat).icon}</span>${cat}`;
+    d.onclick=()=>{setCat(cat);closeMenu();document.getElementById("main").scrollIntoView({behavior:"smooth"});};
+    mm.appendChild(d);
+  });
+  // Atualiza "Todos" no menu
+  document.querySelector("#mobile-menu .mm-cat").className="mm-cat"+(activeCat==="Todos"?" active":"");
+}
+
+/* ── Map urls ── */
+function buildMapUrls(nome,end,mapLink){
+  const direct=mapLink?mapLink.trim():"";
+  const mAt=direct.match(/@(-?\d+\.\d+),(-?\d+\.\d+)/);
+  const mQ =direct.match(/[?&]q=(-?\d+\.\d+),(-?\d+\.\d+)/);
+  const lat=(mAt&&mAt[1])||(mQ&&mQ[1])||"";
+  const lng=(mAt&&mAt[2])||(mQ&&mQ[2])||"";
+  let gm,wz,am;
+  if(direct){
+    gm=direct;
+    wz=lat&&lng?`https://waze.com/ul?ll=${lat},${lng}&navigate=yes`:`https://waze.com/ul?q=${encodeURIComponent(end)}&navigate=yes`;
+    am=lat&&lng?`https://maps.apple.com/?ll=${lat},${lng}&q=${encodeURIComponent(nome)}`:`https://maps.apple.com/?address=${encodeURIComponent(end)}`;
+  } else {
+    const q=encodeURIComponent(end||nome);
+    gm=`https://www.google.com/maps/search/?api=1&query=${q}`;
+    wz=`https://waze.com/ul?q=${q}&navigate=yes`;
+    am=`https://maps.apple.com/?address=${q}`;
+  }
+  return{googleMaps:gm,waze:wz,appleMaps:am,moovit:`https://moovitapp.com/index/pt-br/directions?to=${encodeURIComponent(end||nome)}`,temCoord:!!(lat&&lng),temLink:!!direct};
+}
+
+/* ── Seletor app ── */
+function openMapPicker(urls){
+  const isIOS=/iPhone|iPad|iPod/i.test(navigator.userAgent);
+  const apps=[
+    {name:"Google Maps",sub:urls.temLink?"Abre no ponto cadastrado":"Busca pelo endereço",icon:"🗺️",url:urls.googleMaps,show:true},
+    {name:"Waze",       sub:urls.temCoord?"Navegação com trânsito":"Busca pelo endereço", icon:"🚗",url:urls.waze,      show:true},
+    {name:"Apple Maps", sub:urls.temCoord?"Ponto exato":"Busca pelo endereço",            icon:"🍎",url:urls.appleMaps, show:isIOS},
+    {name:"Moovit",     sub:"Transporte público",                                          icon:"🚌",url:urls.moovit,    show:true},
+  ].filter(a=>a.show);
+  const list=document.getElementById("mp-list");list.innerHTML="";
+  apps.forEach(app=>{
+    const a=document.createElement("a");a.className="mp-app";a.href=app.url;a.target="_blank";a.rel="noopener";
+    a.innerHTML=`<span class="mp-app-icon">${app.icon}</span><div><div>${app.name}</div><div class="mp-app-sub">${app.sub}</div></div>`;
+    list.appendChild(a);
+  });
+  document.getElementById("map-picker-overlay").classList.add("open");
+}
+function closeMapPicker(e){if(!e||e.target===document.getElementById("map-picker-overlay"))document.getElementById("map-picker-overlay").classList.remove("open");}
+
+/* ── Slideshow card ── */
+function buildSlideshow(fotos,emoji,container){
+  if(!fotos.length){container.innerHTML=`<span class="card-thumb-emoji">${emoji}</span>`;return;}
+  if(fotos.length===1){
+    const img=document.createElement("img");img.src=fotos[0];img.alt="";img.loading="lazy";
+    img.style.cssText="width:100%;height:100%;object-fit:cover;position:absolute;inset:0;";
+    img.onerror=()=>container.innerHTML=`<span class="card-thumb-emoji">${emoji}</span>`;
+    container.appendChild(img);return;
+  }
+  const wrap=document.createElement("div");wrap.className="card-slides";
+  fotos.forEach((url,i)=>{
+    const s=document.createElement("div");s.className="card-slide"+(i===0?" active":"");
+    const img=document.createElement("img");img.src=url;img.alt="";img.loading="lazy";
+    img.onerror=()=>s.remove();
+    s.appendChild(img);wrap.appendChild(s);
+  });
+  container.appendChild(wrap);
+  const dots=document.createElement("div");dots.className="card-dots";
+  fotos.forEach((_,i)=>{const d=document.createElement("div");d.className="card-dot"+(i===0?" active":"");dots.appendChild(d);});
+  container.appendChild(dots);
+  let cur=0;
+  const sl=[...wrap.querySelectorAll(".card-slide")];
+  const dl=[...dots.querySelectorAll(".card-dot")];
+  setInterval(()=>{
+    sl[cur].classList.remove("active");dl[cur].classList.remove("active");
+    cur=(cur+1)%sl.length;sl[cur].classList.add("active");dl[cur].classList.add("active");
+  },3200);
+}
+
+/* ── Card ── */
+function buildCard(item,wide=false){
+  const nome=col(item,"nome")||"Sem nome";
+  const sub=col(item,"sub")||col(item,"categoria");
+  const emoji=col(item,"emoji")||catMeta(col(item,"categoria")).icon;
+  const fotos=getFotos(item);
+  const tags=(col(item,"tags")||"").split(",").map(t=>t.trim()).filter(Boolean);
+  const dest=col(item,"dest").toLowerCase()==="sim";
+  const cls=catMeta(col(item,"categoria")).cls;
+  const mapLink=col(item,"map");
+  const urls=mapLink?buildMapUrls(nome,col(item,"end"),mapLink):null;
+
+  const d=document.createElement("div");d.className="card"+(wide?" card-wide":"");
+  const thumb=document.createElement("div");thumb.className="card-thumb";
+  buildSlideshow(fotos,emoji,thumb);
+  const ov=document.createElement("div");ov.className="card-overlay";
+  ov.innerHTML=`<div class="card-name">${nome}</div><div class="card-sub">${sub}</div><div class="card-tags">${tags.slice(0,2).map(t=>`<span class="tag ${cls}">${t}</span>`).join("")}</div>`;
+  if(mapLink&&urls){
+    const btn=document.createElement(isMob()?"button":"a");
+    btn.className="card-map-btn";btn.innerHTML="🗺 Ver no mapa";
+    if(isMob()){btn.onclick=e=>{e.stopPropagation();openMapPicker(urls);};}
+    else{btn.href=urls.googleMaps;btn.target="_blank";btn.rel="noopener";btn.onclick=e=>e.stopPropagation();}
+    ov.appendChild(btn);
+  }
+  if(dest){const b=document.createElement("div");b.className="card-badge";b.textContent="Destaque";d.appendChild(b);}
+  d.appendChild(thumb);d.appendChild(ov);
+  d.onclick=()=>openModal(item);
+  return d;
+}
+
+/* ── Section com setas ── */
+function buildSection(title,icon,items,wide=false){
+  if(!items.length)return null;
+  const sec=document.createElement("div");sec.className="section";
+  sec.innerHTML=`<div class="sec-header"><div class="sec-title"><span>${icon}</span>${title}<span class="sec-count">${items.length}</span></div></div>`;
+  const wrap=document.createElement("div");wrap.className="carousel-wrap";
+  const car=document.createElement("div");car.className="carousel";
+  items.forEach(it=>car.appendChild(buildCard(it,wide)));
+  const btnL=document.createElement("button");btnL.className="carousel-arrow arr-left";btnL.innerHTML="‹";btnL.onclick=()=>car.scrollBy({left:-500,behavior:"smooth"});
+  const btnR=document.createElement("button");btnR.className="carousel-arrow arr-right";btnR.innerHTML="›";btnR.onclick=()=>car.scrollBy({left:500,behavior:"smooth"});
+  wrap.appendChild(btnL);wrap.appendChild(car);wrap.appendChild(btnR);
+  sec.appendChild(wrap);return sec;
+}
+
+/* ── Main ── */
+function renderMain(){
+  const main=document.getElementById("main");main.innerHTML="";
+  const inner=document.createElement("div");inner.className="page-inner";
+
+  const data=activeCat==="Todos"?DATA:DATA.filter(d=>col(d,"categoria")===activeCat);
+  if(!data.length){inner.innerHTML+='<div class="empty-sec"><div style="font-size:2.5rem;margin-bottom:12px">🔍</div><div>Nenhum resultado</div></div>';main.appendChild(inner);return;}
+
+  const dest=data.filter(d=>col(d,"dest").toLowerCase()==="sim");
+  const s0=buildSection("Em Destaque","⭐",dest,true);if(s0)inner.appendChild(s0);
+  [...new Set(data.map(d=>col(d,"categoria")).filter(Boolean))].forEach(cat=>{
+    const items=data.filter(d=>col(d,"categoria")===cat);
+    const s=buildSection(cat,catMeta(cat).icon,items,false);if(s)inner.appendChild(s);
+  });
+  main.appendChild(inner);
+}
+
+/* ══ CARROSSEL DO MODAL ══ */
+let msCarrIdx=0,msCarrTotal=0;
+function msCarrMove(dir){
+  const track=document.getElementById("ms-photo-track");
+  const dots=[...document.getElementById("ms-photo-dots").children];
+  dots[msCarrIdx]?.classList.remove("active");
+  msCarrIdx=(msCarrIdx+dir+msCarrTotal)%msCarrTotal;
+  track.style.transform=`translateX(-${msCarrIdx*100}%)`;
+  document.getElementById("ms-photo-counter").textContent=`${msCarrIdx+1}/${msCarrTotal}`;
+  dots[msCarrIdx]?.classList.add("active");
+}
+
+/* Swipe no carrossel do modal */
+let _swX=0;
+document.getElementById("ms-photo-area").addEventListener("touchstart",e=>{_swX=e.touches[0].clientX;},{passive:true});
+document.getElementById("ms-photo-area").addEventListener("touchend",e=>{
+  const dx=e.changedTouches[0].clientX-_swX;
+  if(Math.abs(dx)>40)msCarrMove(dx<0?1:-1);
+},{passive:true});
+
+/* ── Modal ── */
+function openModal(item){
+  const fotos=getFotos(item);
+  const emoji=col(item,"emoji")||catMeta(col(item,"categoria")).icon;
+
+  /* Monta carrossel de fotos */
+  const track=document.getElementById("ms-photo-track");
+  const dots=document.getElementById("ms-photo-dots");
+  const counter=document.getElementById("ms-photo-counter");
+  const arrL=document.getElementById("ms-arr-l");
+  const arrR=document.getElementById("ms-arr-r");
+  track.innerHTML="";dots.innerHTML="";
+  msCarrIdx=0;
+
+  if(fotos.length){
+    msCarrTotal=fotos.length;
+    fotos.forEach((url,i)=>{
+      const sl=document.createElement("div");sl.className="ms-photo-slide";
+      sl.innerHTML=`<img src="${url}" alt="" loading="${i===0?"eager":"lazy"}"><div class="ms-photo-overlay"></div>`;
+      sl.querySelector("img").onerror=function(){this.parentNode.innerHTML=`<div class="ms-photo-emoji">${emoji}</div>`;};
+      track.appendChild(sl);
+      const dot=document.createElement("div");dot.className="ms-pdot"+(i===0?" active":"");
+      dot.onclick=()=>{const d=msCarrIdx;msCarrIdx=i-1;msCarrMove(1);};
+      dots.appendChild(dot);
+    });
+    track.style.transform="translateX(0)";
+    counter.textContent=`1/${msCarrTotal}`;
+    arrL.style.display=arrR.style.display=fotos.length>1?"flex":"none";
+    dots.style.display=fotos.length>1?"flex":"none";
+    counter.style.display=fotos.length>1?"block":"none";
+  } else {
+    msCarrTotal=1;
+    track.innerHTML=`<div class="ms-photo-slide"><div class="ms-photo-emoji">${emoji}</div></div>`;
+    arrL.style.display=arrR.style.display="none";
+    dots.style.display=counter.style.display="none";
+  }
+
+  /* Detalhes */
+  document.getElementById("ms-title").textContent=col(item,"nome");
+  document.getElementById("ms-cat").textContent=[col(item,"categoria"),col(item,"sub")].filter(Boolean).join(" · ");
+  document.getElementById("ms-desc").textContent=col(item,"desc")||"";
+
+  const grid=document.getElementById("ms-grid");grid.innerHTML="";
+  [["Endereço",col(item,"end")],["Telefone",col(item,"tel")],["Horário",col(item,"hora")]].filter(([,v])=>v).forEach(([l,v])=>{
+    const d=document.createElement("div");d.className="ms-detail";
+    d.innerHTML=`<div class="ms-dl">${l}</div><div class="ms-dv">${v}</div>`;grid.appendChild(d);
+  });
+
+  /* Botões */
+  const acts=document.getElementById("ms-actions");acts.innerHTML="";
+  const mapLink=col(item,"map");
+  const telVal=col(item,"tel");
+  const whatsVal=col(item,"whats");
+  const siteVal=col(item,"site");
+  const socialVal=col(item,"social");
+
+  /* Mapa — só se MapLink cadastrado */
+  if(mapLink){
+    const urls=buildMapUrls(col(item,"nome"),col(item,"end"),mapLink);
+    const btn=document.createElement(isMob()?"button":"a");
+    btn.className="ms-btn ms-btn-primary";btn.innerHTML="🗺 Ver no Mapa";
+    if(isMob()){btn.onclick=()=>openMapPicker(urls);}
+    else{btn.href=urls.googleMaps;btn.target="_blank";btn.rel="noopener";}
+    acts.appendChild(btn);
+  }
+  if(telVal&&telVal.replace(/\D/g,"").length>3){
+    const c=telVal.replace(/\D/g,"");
+    const btn=document.createElement("a");btn.className="ms-btn ms-btn-secondary";
+    btn.href=`tel:${c.length<=11?"+55":""}${c}`;btn.innerHTML="📞 Ligar";acts.appendChild(btn);
+  }
+  if(whatsVal&&whatsVal.replace(/\D/g,"").length>3){
+    const c=whatsVal.replace(/\D/g,"");
+    const num=c.length<=11?`55${c}`:c;
+    const btn=document.createElement("a");btn.className="ms-btn ms-btn-whats";
+    btn.href=`https://wa.me/${num}`;btn.target="_blank";btn.rel="noopener";
+    btn.innerHTML="<svg width='16' height='16' viewBox='0 0 24 24' fill='currentColor' style='flex-shrink:0'><path d='M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z'/><path d='M12 0C5.373 0 0 5.373 0 12c0 2.117.554 4.103 1.523 5.83L0 24l6.335-1.501A11.954 11.954 0 0012 24c6.627 0 12-5.373 12-12S18.627 0 12 0zm0 21.818a9.818 9.818 0 01-5.006-1.368l-.36-.214-3.732.884.934-3.617-.235-.374A9.818 9.818 0 1112 21.818z'/></svg> WhatsApp";
+    acts.appendChild(btn);
+  }
+  if(siteVal){
+    const btn=document.createElement("a");btn.className="ms-btn ms-btn-secondary";
+    btn.href=siteVal;btn.target="_blank";btn.rel="noopener";btn.innerHTML="🌐 Acessar Site";acts.appendChild(btn);
+  }
+  if(socialVal){
+    const icon=socialVal.includes("instagram")?"📸":socialVal.includes("facebook")?"📘":socialVal.includes("tiktok")?"🎵":"📲";
+    const label=socialVal.includes("instagram")?"Instagram":socialVal.includes("facebook")?"Facebook":socialVal.includes("tiktok")?"TikTok":"Redes Sociais";
+    const btn=document.createElement("a");btn.className="ms-btn ms-btn-secondary";
+    btn.href=socialVal;btn.target="_blank";btn.rel="noopener";btn.innerHTML=`${icon} ${label}`;acts.appendChild(btn);
+  }
+
+  document.getElementById("modal-overlay").classList.add("open");
+  document.body.style.overflow="hidden";
+}
+function closeModal(){document.getElementById("modal-overlay").classList.remove("open");document.body.style.overflow="";}
+function overlayClick(e){if(e.target===document.getElementById("modal-overlay"))closeModal();}
+
+/* Swipe para fechar modal (arrastar para baixo) */
+let _ty=0;
+document.getElementById("modal-sheet").addEventListener("touchstart",e=>{_ty=e.touches[0].clientY;},{passive:true});
+document.getElementById("modal-sheet").addEventListener("touchend",e=>{if(e.changedTouches[0].clientY-_ty>80)closeModal();},{passive:true});
+
+/* ── Busca ── */
+function openSearch(){document.getElementById("search-overlay").classList.add("open");document.getElementById("search-input").focus();renderSR("");}
+function closeSearch(){document.getElementById("search-overlay").classList.remove("open");document.getElementById("search-input").value="";}
+function renderSR(term){
+  const box=document.getElementById("search-results");
+  if(!term){box.innerHTML='<div class="sr-empty">Digite para buscar…</div>';return;}
+  const t=term.toLowerCase();
+  const found=DATA.filter(d=>[col(d,"nome"),col(d,"categoria"),col(d,"sub"),col(d,"desc"),col(d,"tags")].some(f=>f&&f.toLowerCase().includes(t))).slice(0,20);
+  if(!found.length){box.innerHTML=`<div class="sr-empty">Nenhum resultado para "${term}"</div>`;return;}
+  box.innerHTML="";
+  found.forEach(item=>{
+    const fotos=getFotos(item);const emoji=col(item,"emoji")||catMeta(col(item,"categoria")).icon;
+    const el=document.createElement("div");el.className="sr-item";
+    el.innerHTML=`<div class="sr-thumb">${fotos.length?`<img src="${fotos[0]}" alt="" loading="lazy" onerror="this.parentNode.innerHTML='${emoji}'">`:`<span>${emoji}</span>`}</div><div><div class="sr-name">${col(item,"nome")}</div><div class="sr-sub">${col(item,"categoria")} · ${col(item,"sub")}</div></div>`;
+    el.onclick=()=>{closeSearch();openModal(item);};box.appendChild(el);
+  });
+}
+document.getElementById("search-input").addEventListener("input",e=>renderSR(e.target.value.trim()));
+
+/* Scroll topbar */
+window.addEventListener("scroll",()=>{document.getElementById("topbar").classList.toggle("solid",window.scrollY>80);},{passive:true});
+
+/* ── Init ── */
+async function init(){
+  buildParticles();loadHeroBg();
+  await loadData();
+  renderCatBar();renderMain();
+  setTimeout(()=>document.getElementById("loader").classList.add("gone"),1800);
+}
+init();
+</script>
+</body>
+</html>
