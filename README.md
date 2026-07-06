@@ -30,4 +30,4 @@ Hóspedes do Hotel de Trânsito
 ![Planilha](fotos/03.png)
 
 # Visualização pelo Celular
-![Celular](fotos/04.png)
+![Celular](fotos/04.jpeg)
