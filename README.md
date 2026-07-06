@@ -22,3 +22,12 @@ Integração automática
 Site Guia do HT
       ↓
 Hóspedes do Hotel de Trânsito
+```
+# Visualização de um Restaurante
+![Restaurante](fotos/02.png)
+
+# Visualização da Planilha
+![Planilha](fotos/03.png)
+
+# Visualização pelo Celular
+![Celular](fotos/04.png)
